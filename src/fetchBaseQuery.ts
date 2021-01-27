@@ -20,8 +20,6 @@ export interface FetchArgs extends CustomRequestInit {
 
 const defaultValidateStatus = (response: Response) => response.status >= 200 && response.status <= 299;
 
-const isJsonContentType = (headers: Headers) => headers.get('content-type')?.trim()?.startsWith('application/json');
-
 const handleResponse = async (response: Response, responseHandler: ResponseHandler) => {
   if (typeof responseHandler === 'function') {
     return responseHandler(response);
@@ -103,11 +101,8 @@ export function fetchBaseQuery({
 
     config.headers = await prepareHeaders(new Headers(cleanUndefinedHeaders(headers)), { getState });
 
-    if (!config.headers.has('content-type')) {
-      config.headers.set('content-type', 'application/json');
-    }
-
-    if (body && isPlainObject(body) && isJsonContentType(config.headers)) {
+    if (body && isPlainObject(body)) {
+      !config.headers.has('content-type') && config.headers.set('content-type', 'application/json');
       config.body = JSON.stringify(body);
     }
 
